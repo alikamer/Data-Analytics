@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# IDE and Datasets
+.idea/
+dataset/application_train.csv
+__pycache__/
+*.py[cod]
+$py.class
