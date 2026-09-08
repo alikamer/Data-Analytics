@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Gradient Descent - Matematiksel Arka Plan</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Georgia", "Times New Roman", serif;
+    color: #1a1a1a;
+    line-height: 1.55;
+    font-size: 13.5px;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 22px;
+    text-align: center;
+    margin-bottom: 2px;
+    border-bottom: 3px solid #1a1a1a;
+    padding-bottom: 10px;
+  }
+  .subtitle {
+    text-align: center;
+    font-style: italic;
+    color: #555;
+    margin-top: 4px;
+    margin-bottom: 22px;
+    font-size: 13px;
+  }
+  h2 {
+    font-size: 16px;
+    background: #1a1a1a;
+    color: #fff;
+    padding: 6px 12px;
+    margin-top: 30px;
+    margin-bottom: 12px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: 0.3px;
+  }
+  h2 .num { color: #e8b84b; margin-right: 8px; }
+  h3 {
+    font-size: 14px;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+    border-left: 4px solid #1a1a1a;
+    padding-left: 8px;
+  }
+  p { margin: 8px 0; text-align: justify; }
+  .box {
+    background: #f7f5f0;
+    border: 1px solid #d8d2c4;
+    border-left: 5px solid #1a1a1a;
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 2px;
+  }
+  .formula {
+    background: #fbfaf7;
+    border: 1px solid #d8d2c4;
+    padding: 14px 18px;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 16px;
+    font-family: "Cambria Math", "Georgia", serif;
+    border-radius: 3px;
+  }
+  .formula .label {
+    display: block;
+    text-align: left;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5px;
+    color: #888;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .analogy {
+    background: #eef3f1;
+    border: 1px dashed #6b8e7f;
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 2px;
+  }
+  .analogy::before {
+    content: "🧭 SEZGİ / BENZETME";
+    display: block;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    color: #3d6b58;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+  .why {
+    background: #fbeee8;
+    border-left: 4px solid #b5502f;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 2px;
+  }
+  .why::before {
+    content: "NEDEN?";
+    display: block;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    color: #b5502f;
+    margin-bottom: 4px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    text-align: center;
+  }
+  th { background: #1a1a1a; color: #fff; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11.5px; }
+  tr:nth-child(even) td { background: #f7f5f0; }
+  .step {
+    margin: 10px 0;
+    padding-left: 14px;
+  }
+  .step .n {
+    display: inline-block;
+    width: 20px; height: 20px;
+    background: #1a1a1a; color: #fff;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 20px;
+    font-size: 11px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    margin-right: 6px;
+  }
+  .exercise {
+    background: #fff9e8;
+    border: 1px solid #e0c878;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 2px;
+  }
+  .exercise::before {
+    content: "✏️ ALIŞTIRMA " attr(data-num);
+    display: block;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5px;
+    font-weight: bold;
+    color: #8a6d1a;
+    margin-bottom: 6px;
+  }
+  .answer {
+    background: #eef6ee;
+    border: 1px solid #a8cfa8;
+    padding: 10px 14px;
+    margin: 8px 0 16px 0;
+    border-radius: 2px;
+    font-size: 12.5px;
+  }
+  .answer::before {
+    content: "✓ CEVAP ANAHTARI";
+    display: block;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 9.5px;
+    font-weight: bold;
+    color: #3d7a3d;
+    margin-bottom: 4px;
+  }
+  .pagebreak { page-break-before: always; }
+  .footer-note {
+    margin-top: 40px;
+    padding-top: 12px;
+    border-top: 1px solid #ccc;
+    font-size: 11px;
+    color: #777;
+    text-align: center;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding: 4px 0 4px 26px; position: relative; }
+  .checklist li::before {
+    content: "☐";
+    position: absolute; left: 0; font-size: 15px;
+  }
+  sub, sup { font-family: "Cambria Math", "Georgia", serif; }
+</style>
+</head>
+<body>
+
+<h1>Gradient Descent'in Matematiksel Arka Planı</h1>
+<div class="subtitle">Kodlamadan önce sindirilecek temel çalışma kağıdı — Miuul Makine Öğrenmesi Modülü</div>
+
+<div class="box">
+<strong>Bu çalışma kağıdının amacı:</strong> Gradient descent algoritmasının koduna geçmeden önce, "neden bu formül böyle" sorusunun cevabını kağıt üzerinde, elle hesaplayarak kalıcı biçimde oturtmak. Her formülün önce sezgisi, sonra matematiği verilecek. Alıştırmaları atlamadan, sırayla, kalemle çöz.
+</div>
+
+<h2><span class="num">1</span>Problem Nedir?</h2>
+
+<p>Elimizde bağımsız değişken <b>x</b> (örneğin TV reklam harcaması) ile bağımlı değişken <b>y</b> (satış) arasında bir doğrusal ilişki kurmak istiyoruz. Aradığımız doğru şu genel formda:</p>
+
+<div class="formula">
+<span class="label">Hipotez Fonksiyonu (modelin tahmini)</span>
+h<sub>θ</sub>(x) = θ<sub>0</sub> + θ<sub>1</sub>·x
+</div>
+
+<ul>
+<li><b>θ₀</b> (theta-sıfır): doğrunun y-eksenini kestiği nokta (sabit terim / bias)</li>
+<li><b>θ₁</b> (theta-bir): doğrunun eğimi (x bir birim arttığında y ne kadar değişiyor)</li>
+<li><b>h<sub>θ</sub>(x)</b>: bu θ değerleriyle modelin ürettiği tahmin</li>
+</ul>
+
+<p>Sorun şu: <b>sonsuz sayıda (θ₀, θ₁) çifti</b>, dolayısıyla sonsuz sayıda doğru mümkün. Hangisinin "en iyi" olduğuna nasıl karar vereceğiz? Önce "iyilik"i ölçmemiz, sonra da bu ölçüyü en iyi yapan θ değerlerini <b>bulmamız</b> gerekiyor. Gradient descent, ikinci kısmı yani "bulma" işini yapan yöntemdir.</p>
+
+<h2><span class="num">2</span>Maliyet Fonksiyonu J(θ₀, θ₁)</h2>
+
+<p>Önce modelin ne kadar "kötü" olduğunu tek bir sayıyla ifade eden bir fonksiyon tanımlayalım:</p>
+
+<div class="formula">
+<span class="label">Maliyet (Cost) Fonksiyonu</span>
+J(θ<sub>0</sub>,θ<sub>1</sub>) = (1/2m) · Σ<sub>i=1</sub><sup>m</sup> (h<sub>θ</sub>(x<sup>(i)</sup>) − y<sup>(i)</sup>)²
+</div>
+
+<h3>Parça parça okuma</h3>
+<div class="step"><span class="n">1</span><b>i = 1...m:</b> Veri setindeki her satır (gözlem). m = toplam gözlem sayısı.</div>
+<div class="step"><span class="n">2</span><b>h<sub>θ</sub>(x<sup>(i)</sup>) − y<sup>(i)</sup>:</b> O gözlem için tahmin ile gerçek değer arasındaki fark (hata).</div>
+<div class="step"><span class="n">3</span><b>(...)²:</b> Bu farkın karesi.</div>
+<div class="step"><span class="n">4</span><b>Σ:</b> Tüm gözlemlerdeki kare hataları topla.</div>
+<div class="step"><span class="n">5</span><b>1/(2m):</b> Toplamı ortalamaya çevir; 2'ye bölme, sadece ileride türev alırken sadeleşme sağlayan bir kolaylık.</div>
+
+<div class="why">
+Hatayı doğrudan toplamak yerine <b>kareye</b> alıyoruz çünkü: (a) negatif ve pozitif hatalar birbirini götürüp yanlış bir "sıfır hata" izlenimi vermesin, (b) büyük hatalar kareleyince orantısız büyür, yani model büyük sapmalardan çok daha fazla "rahatsız" olsun.
+</div>
+
+<h3>Sayısal örnek</h3>
+<p>Veri: (1,3), (2,5), (3,7). θ₀=0, θ₁=1 seçelim (yani doğru: y = x).</p>
+<table>
+<tr><th>x</th><th>y (gerçek)</th><th>h(x) = θ₀+θ₁x</th><th>hata = h(x)−y</th><th>hata²</th></tr>
+<tr><td>1</td><td>3</td><td>1</td><td>−2</td><td>4</td></tr>
+<tr><td>2</td><td>5</td><td>2</td><td>−3</td><td>9</td></tr>
+<tr><td>3</td><td>7</td><td>3</td><td>−4</td><td>16</td></tr>
+</table>
+<p>Toplam kare hata = 4+9+16 = 29. m=3 olduğuna göre: J = 29 / (2·3) = <b>4.83</b>.</p>
+
+<div class="exercise" data-num="1">
+Aynı veri (1,3), (2,5), (3,7) için θ₀=1, θ₁=2 seçersen J kaç çıkar? Tabloyu kendin kur, hesapla.
+</div>
+<div class="answer">
+Tahminler: h(1)=1+2=3, h(2)=1+4=5, h(3)=1+6=7 — hepsi gerçek değerle birebir aynı. Hatalar: 0,0,0. J = 0/(2·3) = <b>0</b>. Bu, bu veri için mümkün olan en iyi (mükemmel) sonuçtur.
+</div>
+
+<h2><span class="num">3</span>Amaç: J'yi Minimize Etmek</h2>
+
+<div class="formula">
+<span class="label">Optimizasyon Hedefi</span>
+minimize J(θ<sub>0</sub>,θ<sub>1</sub>)  &nbsp;&nbsp; θ<sub>0</sub>,θ<sub>1</sub> üzerinden
+</div>
+
+<p>J, veriye değil <b>θ₀ ve θ₁'in seçimine bağlı bir fonksiyondur.</b> Veri sabit kalır; sen θ değerlerini değiştirdikçe J'nin çıktısı değişir. Amacımız, J'yi mümkün olan en küçük değere indiren θ₀, θ₁ çiftini bulmak.</p>
+
+<div class="analogy">
+Bunu bir <b>çukur/vadi</b> gibi düşün. Yatay eksen: θ'nin alabileceği değerler. Dikey eksen: o θ seçildiğinde J'nin ne kadar çıktığı. θ, gerçek/optimal değerden uzaklaştıkça J büyür (çukurun kenarlarına tırmanırsın); θ optimale yaklaştıkça J küçülür (çukurun dibine inersin). Bu şekle <b>konveks (tek dipli, kase şeklinde) fonksiyon</b> denir — kare aldığımız için grafiği hep böyle çıkar, birden fazla çukuru olmaz. Bu önemli: tek bir dip olduğu için "yanlış çukura düşme" riski yok.
+</div>
+
+<h2><span class="num">4</span>Dibe Nasıl İnilir? — Gradyan (Türev) Sezgisi</h2>
+
+<div class="analogy">
+Sisli bir dağdasın, aşağıyı göremiyorsun, sadece <b>ayağının altındaki eğimi hissedebiliyorsun.</b> Vadiye inmek istiyorsun. Mantıklı strateji: ayağının altı hangi yöne "aşağı" eğimliyse o yöne bir adım at. Ayağının altındaki bu eğim ölçüsüne matematikte <b>türev (gradyan)</b> denir.
+</div>
+
+<h3>Eğimin yönü ne anlatır?</h3>
+<table>
+<tr><th>Eğim durumu</th><th>Anlamı</th><th>Ne yapmalı?</th></tr>
+<tr><td>Eğim pozitif</td><td>Sağa gittikçe fonksiyon yükseliyor</td><td>Aşağı inmek için SOLA git (θ'yi küçült)</td></tr>
+<tr><td>Eğim negatif</td><td>Sağa gittikçe fonksiyon alçalıyor</td><td>Aşağı inmek için SAĞA git (θ'yi büyüt)</td></tr>
+</table>
+
+<div class="why">
+Güncelleme kuralı her iki durumu da <b>tek bir formülle</b> otomatik halleder: <b>yeni θ = eski θ − eğim.</b> Eğim pozitifse çıkarınca θ küçülür (sola gider); eğim negatifse çıkarınca θ büyür (sağa gider, çünkü eksi bir sayıyı çıkarmak toplamaya eşittir).
+</div>
+
+<h2><span class="num">5</span>Kısmi Türevlerin Türetilmesi</h2>
+
+<p>J'nin θ₀'a göre ve θ₁'e göre kısmi türevini alacağız. Bu, "θ₀'ı biraz kıpırdatırsam J ne kadar değişir" ve "θ₁'i biraz kıpırdatırsam J ne kadar değişir" sorularının cevabıdır.</p>
+
+<h3>θ₀'a göre türev</h3>
+<p>J = (1/2m)·Σ(h<sub>θ</sub>(x<sup>(i)</sup>) − y<sup>(i)</sup>)² ifadesinde h<sub>θ</sub>(x) = θ₀ + θ₁x olduğunu yerine koyarsak, iç fonksiyonun θ₀'a göre türevi 1'dir (çünkü θ₀'ın katsayısı 1). Zincir kuralı uygulanınca:</p>
+<div class="formula">
+∂J/∂θ<sub>0</sub> = (1/m) · Σ<sub>i=1</sub><sup>m</sup> (h<sub>θ</sub>(x<sup>(i)</sup>) − y<sup>(i)</sup>)
+</div>
+<p>(Kare alma işleminin türevi 2 kat verir, ama önden koyduğumuz 1/2 bu 2 ile sadeleşir — <b>2m yerine m kalmasının sebebi tam olarak budur.</b>)</p>
+
+<h3>θ₁'e göre türev</h3>
+<p>Bu sefer iç fonksiyonun θ₁'e göre türevi <b>x</b>'tir (çünkü θ₁'in katsayısı x). Zincir kuralı gereği sona bir x çarpanı daha eklenir:</p>
+<div class="formula">
+∂J/∂θ<sub>1</sub> = (1/m) · Σ<sub>i=1</sub><sup>m</sup> (h<sub>θ</sub>(x<sup>(i)</sup>) − y<sup>(i)</sup>) · x<sup>(i)</sup>
+</div>
+
+<div class="why">
+θ₁ formülünde neden sonda x var, θ₀'da yok? θ₀ sabit bir terim (x ile çarpılı değil), θ₁ ise x ile çarpılı bir terim. Türev alırken bir değişkenin "yanındaki çarpan" türevin sonucuna otomatik olarak dahil olur. Sezgisel olarak da: x büyükse (örneğin TV harcaması çok yüksekse), o gözlemdeki hatanın θ₁'i değiştirmedeki payı da büyük olsun istiyoruz.
+</div>
+
+<h2><span class="num">6</span>Güncelleme Kuralları (Asıl Adım)</h2>
+
+<div class="formula">
+<span class="label">Simultane Güncelleme</span>
+θ<sub>0</sub> := θ<sub>0</sub> − α · (1/m)·Σ(h<sub>θ</sub>(x<sup>(i)</sup>) − y<sup>(i)</sup>)<br><br>
+θ<sub>1</sub> := θ<sub>1</sub> − α · (1/m)·Σ(h<sub>θ</sub>(x<sup>(i)</sup>) − y<sup>(i)</sup>)·x<sup>(i)</sup>
+</div>
+
+<p><b>":=" işareti</b> matematiksel eşitlik değil, programlamadaki <b>atama</b> anlamına gelir: "sağdaki değeri hesapla, soldakinin yeni değeri yap".</p>
+
+<div class="box">
+<b>Kritik kural — Eşzamanlı (simultaneous) güncelleme:</b> θ₀ ve θ₁, her ikisi de <b>eski değerleriyle</b> hesaplanmalı. Yani önce θ₀'ı güncelleyip, θ₁'i hesaplarken güncellenmiş θ₀'ı kullanmak <b>yanlıştır</b>. Doğrusu: ikisinin de yeni değerini eski değerlerle hesapla, sonra ikisini birden güncelle.
+</div>
+
+<h3>α (alpha) — Öğrenme Oranı</h3>
+<div class="analogy">
+Dağcı benzetmesine dön: <b>α senin adım büyüklüğün.</b>
+</div>
+<table>
+<tr><th>α seçimi</th><th>Sonuç</th></tr>
+<tr><td>Çok küçük (örn. 0.0001)</td><td>Güvenli ama çok yavaş — vadiye inmek çok uzun sürer</td></tr>
+<tr><td>Uygun (örn. 0.01 – 0.1)</td><td>Makul hızda, kontrollü şekilde dibe iner</td></tr>
+<tr><td>Çok büyük (örn. 5)</td><td>Vadiyi ıskalar, karşı yamaca sıçrar; hatta J küçülmek yerine büyüyebilir (ıraksama)</td></tr>
+</table>
+<p>Pratikte α, deneme yanılmayla seçilir: 0.001, 0.01, 0.1, 1 gibi değerler denenip J'nin iterasyonlar boyunca düzgünce azaldığı değer seçilir.</p>
+
+<div class="pagebreak"></div>
+
+<h2><span class="num">7</span>Elle Çözülmüş Tam Örnek</h2>
+
+<p>Veri: (1,3), (2,5), (3,7) — m=3. Gerçek/optimal çözüm θ₀=1, θ₁=2 olduğunu biliyoruz (kontrol amaçlı). Başlangıç: θ₀=0, θ₁=0, α=0.1</p>
+
+<h3>İterasyon 1</h3>
+<table>
+<tr><th>x</th><th>y</th><th>h(x)=θ₀+θ₁x</th><th>hata=h(x)−y</th><th>hata · x</th></tr>
+<tr><td>1</td><td>3</td><td>0</td><td>−3</td><td>−3</td></tr>
+<tr><td>2</td><td>5</td><td>0</td><td>−5</td><td>−10</td></tr>
+<tr><td>3</td><td>7</td><td>0</td><td>−7</td><td>−21</td></tr>
+</table>
+<p>Eğim(θ₀) = (−3−5−7)/3 = −5 &nbsp;&nbsp;|&nbsp;&nbsp; Eğim(θ₁) = (−3−10−21)/3 = −34/3 ≈ −11.33</p>
+<p>Yeni θ₀ = 0 − 0.1·(−5) = <b>0.5</b> &nbsp;&nbsp;|&nbsp;&nbsp; Yeni θ₁ = 0 − 0.1·(−11.33) = <b>1.133</b></p>
+
+<div class="exercise" data-num="2">
+<b>İterasyon 2'yi sen hesapla.</b> θ₀=0.5, θ₁=1.133 ile başla, aynı tabloyu (x, y, h(x), hata, hata·x) kur, eğimleri bul, yeni θ₀ ve θ₁'i hesapla. α=0.1 kalsın.
+</div>
+<div class="answer">
+h(1)=0.5+1.133=1.633, hata=1.633−3=−1.367<br>
+h(2)=0.5+2.266=2.766, hata=2.766−5=−2.234<br>
+h(3)=0.5+3.399=3.899, hata=3.899−7=−3.101<br>
+Eğim(θ₀) = (−1.367−2.234−3.101)/3 ≈ −2.234<br>
+Eğim(θ₁) = (−1.367·1 −2.234·2 −3.101·3)/3 = (−1.367−4.468−9.303)/3 ≈ −5.046<br>
+Yeni θ₀ = 0.5 − 0.1·(−2.234) ≈ <b>0.723</b><br>
+Yeni θ₁ = 1.133 − 0.1·(−5.046) ≈ <b>1.638</b><br>
+Görüldüğü gibi θ₀ (1'e) ve θ₁ (2'ye) gitgide yaklaşıyor.
+</div>
+
+<div class="exercise" data-num="3">
+<b>İterasyon 3'ü de sen dene.</b> θ₀=0.723, θ₁=1.638 ile devam et. Sonucun θ₀'ın 1'e, θ₁'in 2'ye biraz daha yaklaştığını göreceksin. Kaç iterasyonda "yeterince yakın" (örn. J&lt;0.01) olacağını merak ediyorsan, bunu bir sonraki adımda kodla test edeceksin — elle onlarca iterasyon yapmaya gerek yok, mantığı 2-3 iterasyonda görmek yeterli.
+</div>
+
+<h2><span class="num">8</span>Bu Matematiğin Koda Bağlanması</h2>
+
+<table>
+<tr><th>Matematikteki adım</th><th>Kodda karşılığı</th></tr>
+<tr><td>θ₀, θ₁ başlangıç değeri (0 gibi)</td><td>b, w değişkenlerini 0 (veya küçük rastgele) ile başlatmak</td></tr>
+<tr><td>h<sub>θ</sub>(x<sup>(i)</sup>) hesaplama</td><td>tahmin = b + w * x, tüm gözlemler için (vektörel işlem)</td></tr>
+<tr><td>Hata: h(x)−y</td><td>tahmin - gerçek değer farkı</td></tr>
+<tr><td>Σ(...)·(1/m)</td><td>numpy'da .mean() veya .sum()/m</td></tr>
+<tr><td>θ := θ − α·eğim</td><td>b = b - alpha * eğim_b ; w = w - alpha * eğim_w</td></tr>
+<tr><td>Bunu tekrarla (iterasyon)</td><td>for döngüsü, belirli sayıda tekrar (num_iters)</td></tr>
+<tr><td>Dibe ulaşma kontrolü</td><td>J'nin (cost) her iterasyonda ne kadar azaldığını yazdırıp izlemek</td></tr>
+</table>
+
+<div class="box">
+<b>Önemli hatırlatma:</b> <code>LinearRegression().fit()</code> bu iteratif süreci hiç kullanmaz — OLS (En Küçük Kareler) denen kapalı-form matematiksel formülle çukurun dibini tek hamlede hesaplar. Şimdi yazacağın gradient descent kodu, <b>aynı dibi farklı bir yoldan</b>, adım adım bularak sklearn'in bulduğu sonuca (yaklaşık) eşit bir b, w üretecek.
+</div>
+
+<h2><span class="num">9</span>Kodlamaya Geçmeden Önce Kontrol Listesi</h2>
+<ul class="checklist">
+<li>J(θ₀,θ₁) fonksiyonunun ne ölçtüğünü kendi cümlelerimle açıklayabiliyorum.</li>
+<li>Neden hata karesi alındığını (negatifleri yok etmek + büyük hataları cezalandırmak) biliyorum.</li>
+<li>Çukur/vadi benzetmesini ve "tek dipli (konveks)" olmasının anlamını anlıyorum.</li>
+<li>Eğimin (türevin) neden "yön" bilgisi verdiğini, ve neden ters yönde hareket ettiğimizi anlıyorum.</li>
+<li>θ₀ ve θ₁ formülleri arasındaki tek farkın (sondaki x çarpanı) nereden geldiğini biliyorum.</li>
+<li>α'nın çok küçük/çok büyük olmasının ne gibi sorunlara yol açtığını açıklayabiliyorum.</li>
+<li>Elle en az 2 iterasyonu, hatasız şekilde, tablo kurarak hesapladım.</li>
+<li>Eşzamanlı güncelleme kuralının (θ₀ ve θ₁'in ikisinin de eski değerle hesaplanması) ne demek olduğunu biliyorum.</li>
+</ul>
+
+<p><b>Hepsini işaretleyebiliyorsan, kodlama kısmına geçmeye hazırsın.</b> Takıldığın alıştırma olursa (özellikle 2. veya 3. iterasyon), çözümünü getir birlikte kontrol edelim.</p>
+
+<div class="footer-note">Miuul Makine Öğrenmesi Modülü — Gradient Descent Ön Çalışma Kağıdı</div>
+
+</body>
+</html>

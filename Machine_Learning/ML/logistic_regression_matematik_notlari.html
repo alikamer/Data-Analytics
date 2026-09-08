@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Lojistik Regresyon - Matematiksel Arka Plan</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Georgia", "Times New Roman", serif;
+    color: #1a1a1a;
+    line-height: 1.55;
+    font-size: 13.5px;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 22px;
+    text-align: center;
+    margin-bottom: 2px;
+    border-bottom: 3px solid #1a1a1a;
+    padding-bottom: 10px;
+  }
+  .subtitle {
+    text-align: center;
+    font-style: italic;
+    color: #555;
+    margin-top: 4px;
+    margin-bottom: 22px;
+    font-size: 13px;
+  }
+  h2 {
+    font-size: 16px;
+    background: #1a1a1a;
+    color: #fff;
+    padding: 6px 12px;
+    margin-top: 30px;
+    margin-bottom: 12px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: 0.3px;
+  }
+  h2 .num { color: #e8b84b; margin-right: 8px; }
+  h3 {
+    font-size: 14px;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+    border-left: 4px solid #1a1a1a;
+    padding-left: 8px;
+  }
+  p { margin: 8px 0; text-align: justify; }
+  .box {
+    background: #f7f5f0;
+    border: 1px solid #d8d2c4;
+    border-left: 5px solid #1a1a1a;
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 2px;
+  }
+  .formula {
+    background: #fbfaf7;
+    border: 1px solid #d8d2c4;
+    padding: 14px 18px;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 16px;
+    font-family: "Cambria Math", "Georgia", serif;
+    border-radius: 3px;
+  }
+  .formula .label {
+    display: block;
+    text-align: left;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5px;
+    color: #888;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .analogy {
+    background: #eef3f1;
+    border: 1px dashed #6b8e7f;
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 2px;
+  }
+  .analogy::before {
+    content: "SEZGİ / BENZETME";
+    display: block;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    color: #3d6b58;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+  .why {
+    background: #fbeee8;
+    border-left: 4px solid #b5502f;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 2px;
+  }
+  .why::before {
+    content: "NEDEN?";
+    display: block;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    color: #b5502f;
+    margin-bottom: 4px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    text-align: center;
+  }
+  th { background: #1a1a1a; color: #fff; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11.5px; }
+  tr:nth-child(even) td { background: #f7f5f0; }
+  .step {
+    margin: 10px 0;
+    padding-left: 14px;
+  }
+  .step .n {
+    display: inline-block;
+    width: 20px; height: 20px;
+    background: #1a1a1a; color: #fff;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 20px;
+    font-size: 11px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    margin-right: 6px;
+  }
+  .exercise {
+    background: #fff9e8;
+    border: 1px solid #e0c878;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 2px;
+  }
+  .exercise::before {
+    content: "ALIŞTIRMA " attr(data-num);
+    display: block;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5px;
+    font-weight: bold;
+    color: #8a6d1a;
+    margin-bottom: 6px;
+  }
+  .answer {
+    background: #eef6ee;
+    border: 1px solid #a8cfa8;
+    padding: 10px 14px;
+    margin: 8px 0 16px 0;
+    border-radius: 2px;
+    font-size: 12.5px;
+  }
+  .answer::before {
+    content: "CEVAP ANAHTARI";
+    display: block;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 9.5px;
+    font-weight: bold;
+    color: #3d7a3d;
+    margin-bottom: 4px;
+  }
+  .pagebreak { page-break-before: always; }
+  .footer-note {
+    margin-top: 40px;
+    padding-top: 12px;
+    border-top: 1px solid #ccc;
+    font-size: 11px;
+    color: #777;
+    text-align: center;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding: 4px 0 4px 26px; position: relative; }
+  .checklist li::before {
+    content: "☐";
+    position: absolute; left: 0; font-size: 15px;
+  }
+  sub, sup { font-family: "Cambria Math", "Georgia", serif; }
+</style>
+</head>
+<body>
+
+<h1>Lojistik Regresyonun Matematiksel Arka Planı</h1>
+<div class="subtitle">Kodlamadan önce sindirilecek temel çalışma kağıdı — Miuul Makine Öğrenmesi Modülü</div>
+
+<div class="box">
+<strong>Bu çalışma kağıdının amacı:</strong> Lojistik regresyonda kullanılan sigmoid fonksiyonu, log loss (cross entropy) maliyet fonksiyonu ve bunun gradient descent ile nasıl minimize edildiğini, koduna geçmeden önce elle hesaplayarak kalıcı biçimde oturtmak. Doğrusal regresyondaki gradient descent notlarının doğal devamıdır — oradaki temel mantık (eğim bul, ters yönde adım at) burada da aynen geçerli, değişen tek şey hangi fonksiyonun eğimini aldığımız.
+</div>
+
+<h2><span class="num">1</span>Problem Nedir?</h2>
+
+<p>Doğrusal regresyonda hedef sürekli bir sayı tahmin etmekti (satış = 14.3 gibi). Lojistik regresyonda hedef bir <b>sınıf</b> tahmin etmek: hasta mı değil mi, churn oldu mu olmadı mı gibi 0/1 etiketler. Doğrudan <code>b + w·x</code> formülünü kullanamayız çünkü bu ifade −∞ ile +∞ arası her değeri üretebilir; oysa biz "1 sınıfına ait olma olasılığı" istiyoruz, bunun 0 ile 1 arasında olması gerekir.</p>
+
+<h3>Sigmoid fonksiyonu</h3>
+<div class="formula">
+<span class="label">Sigmoid (Lojistik Fonksiyon)</span>
+ŷ = 1 / (1 + e<sup>−z</sup>) &nbsp;&nbsp;&nbsp; burada &nbsp; z = b + w<sub>1</sub>x<sub>1</sub> + w<sub>2</sub>x<sub>2</sub> + ... + w<sub>p</sub>x<sub>p</sub>
+</div>
+
+<p>Önce klasik doğrusal skor <b>z</b>'yi hesaplarız (buna "logit" da denir), sonra bu skoru sigmoid fonksiyonundan geçiririz. Sigmoid'in işi basit: içine ne verirsen ver, çıktıyı her zaman 0 ile 1 arasına sıkıştırır. Grafiği S harfi şeklindedir; z=0 civarında hızlı geçiş yapar, uçlarda 0'a veya 1'e yapışır.</p>
+
+<div class="analogy">
+z, "ham skor" gibi düşünülebilir — ne kadar büyükse o kadar "1 sınıfına yakın", ne kadar küçük (negatif) ise o kadar "0 sınıfına yakın". Ama z'nin kendisi bir olasılık değil, sınırsız bir sayı. Sigmoid bu sınırsız sayıyı alıp "olasılık dili"ne çevirir: z çok büyükse ŷ→1, z çok küçükse (çok negatif) ŷ→0, z=0 ise ŷ=0.5 (tam kararsız nokta).
+</div>
+
+<h3>Sayısal örnek — elle hesaplama</h3>
+<p>b=5, w₁=4, w₂=−4, w₃=3 &nbsp;&nbsp;|&nbsp;&nbsp; x₁=2, x₂=3, x₃=0</p>
+<div class="step"><span class="n">1</span>z = 5 + (4·2) + (−4·3) + (3·0) = 5 + 8 − 12 + 0 = <b>1</b></div>
+<div class="step"><span class="n">2</span>ŷ = 1 / (1 + e<sup>−1</sup>) = 1 / (1 + 0.368) = <b>0.731</b></div>
+<p>Yorum: bu gözlem biriminin "1 sınıfına ait olma olasılığı" %73.1. Eşik 0.5 kabul edilirse, model bu gözlemi <b>1 sınıfına</b> atar.</p>
+
+<div class="exercise" data-num="1">
+Aynı b, w değerleriyle x₁=0, x₂=0, x₃=5 için ŷ'yi hesapla.
+</div>
+<div class="answer">
+z = 5 + (4·0) + (−4·0) + (3·5) = 5 + 15 = 20. ŷ = 1/(1+e<sup>−20</sup>) ≈ 1/(1+0.0000000021) ≈ <b>0.9999999979</b>, yani neredeyse kesin 1 sınıfı. z çok büyüdüğünde sigmoid'in 1'e "yapıştığını" burada görüyorsun.
+</div>
+
+<h2><span class="num">2</span>Maliyet Fonksiyonu Neden MSE Değil?</h2>
+
+<p>Doğrusal regresyonda b, w'yi bulmak için hatayı (tahmin−gerçek)² olarak ölçüp (MSE) minimize ediyorduk. Bu, düz bir doğru (h(x)=b+wx) için <b>tek çukurlu (konveks)</b> bir yüzey oluşturuyordu — gradient descent güvenle dibe inebiliyordu.</p>
+
+<div class="why">
+Sigmoid, S-şekilli ve kendi içinde bükülen (eğrisel) bir fonksiyon. Bunu MSE ile birleştirirsen — yani (ŷ−y)² alırsan, burada ŷ = sigmoid(z) — ortaya çıkan hata yüzeyi artık tek çukurlu olmuyor, <b>tümsekli (non-konveks)</b> hale geliyor. Gradient descent böyle bir yüzeyde bir çukura düşüp "buldum minimum" diyebilir, ama bu sadece <b>yerel minimum</b> olabilir, gerçek en iyi nokta değil. Bu yüzden lojistik regresyonda MSE yerine <b>log loss</b> kullanılır — log loss + sigmoid kombinasyonu matematiksel olarak yine tek çukurludur (bu çalışma kağıdının 4. bölümünde bu neden-sonuç ilişkisini elle göreceksin).
+</div>
+
+<h2><span class="num">3</span>Log Loss (Cross Entropy) Formülü</h2>
+
+<div class="formula">
+<span class="label">Tek gözlem için log loss</span>
+Loss<sub>i</sub> = −y<sub>i</sub>·log(ŷ<sub>i</sub>) − (1−y<sub>i</sub>)·log(1−ŷ<sub>i</sub>)
+</div>
+
+<div class="formula">
+<span class="label">Tüm veri seti için ortalama (m gözlem)</span>
+Log Loss = (1/m) · Σ<sub>i=1</sub><sup>m</sup> [ −y<sub>i</sub>·log(ŷ<sub>i</sub>) − (1−y<sub>i</sub>)·log(1−ŷ<sub>i</sub>) ]
+</div>
+
+<h3>Parça parça okuma — formül neden "anahtarlanır" gibi çalışır</h3>
+<p>Bu formülün püf noktası: her gözlemde gerçek değer y<sub>i</sub> ya <b>0</b> ya <b>1</b> olduğu için, formülün iki yarısından her zaman biri "kapanır" (sıfırlanır), diğeri devrede kalır.</p>
+
+<h3>Durum A: y<sub>i</sub> = 1 ise</h3>
+<div class="step"><span class="n">1</span>Formülün sol tarafı: −1·log(ŷ) → devrede kalır.</div>
+<div class="step"><span class="n">2</span>Formülün sağ tarafı: (1−1)·log(1−ŷ) = 0·(...) = <b>0</b> → tamamen gider.</div>
+<div class="step"><span class="n">3</span>Geriye kalan: Loss = −log(ŷ). Yani sadece "1 sınıfına ait olma olasılığı ŷ ne kadar yüksekse o kadar iyi" değerlendirmesi kalıyor.</div>
+
+<h3>Durum B: y<sub>i</sub> = 0 ise</h3>
+<div class="step"><span class="n">1</span>Formülün sol tarafı: −0·log(ŷ) = <b>0</b> → tamamen gider.</div>
+<div class="step"><span class="n">2</span>Formülün sağ tarafı: −(1−0)·log(1−ŷ) = −log(1−ŷ) → devrede kalır.</div>
+<div class="step"><span class="n">3</span>Not: (1−ŷ), "0 sınıfına ait olma olasılığı" demektir. Yani burada da aynı mantık işliyor, sadece 0 sınıfı için.</div>
+
+<div class="analogy">
+Formülü bir "anahtarlama devresi" gibi düşün: y<sub>i</sub> hangi sınıfı işaret ediyorsa, formül otomatik olarak o sınıfın olasılığını değerlendiren yarıyı açık bırakıp diğerini kapatıyor. Elle hesap yaparken "hangi tarafın hayatta kaldığını" bulmak, hesabın yarısını anında bitirir.
+</div>
+
+<h3>Neden eksi log? — tek bir sayı ile sezgi</h3>
+<table>
+<tr><th>Durum</th><th>log(değer)</th><th>−log(değer) = Loss</th><th>Yorum</th></tr>
+<tr><td>ŷ = 0.99 (neredeyse emin, doğru)</td><td>log(0.99) ≈ −0.01</td><td>≈ 0.01 (çok küçük)</td><td>Model doğru ve emin → neredeyse hiç ceza yok</td></tr>
+<tr><td>ŷ = 0.50 (kararsız)</td><td>log(0.50) ≈ −0.69</td><td>≈ 0.69 (orta)</td><td>Model kararsız → orta ceza</td></tr>
+<tr><td>ŷ = 0.01 (neredeyse emin, ama yanlış)</td><td>log(0.01) ≈ −4.6</td><td>≈ 4.6 (çok büyük)</td><td>Model emin ama yanlış → ağır ceza</td></tr>
+</table>
+
+<div class="why">
+log fonksiyonu 0'a yaklaştıkça −∞'a gider. Bu yüzden model "yanlış ama çok emin" davrandığında (gerçek sınıfa neredeyse sıfır olasılık verdiğinde) ceza patlarcasına büyür. MSE'de böyle keskin bir ceza mekanizması yok — büyük hatalar sadece "kareleniyor", log loss'ta ise üstel biçimde cezalandırılıyor. Bu, modelin aşırı özgüvenli ve yanlış tahminlerden kaçınmasını sağlar.
+</div>
+
+<h3>Sayısal örnek</h3>
+<p>3 gözlemlik mini veri seti:</p>
+<table>
+<tr><th>Gözlem</th><th>y (gerçek)</th><th>ŷ (tahmin edilen olasılık)</th><th>Hangi yarı devrede?</th><th>Loss<sub>i</sub></th></tr>
+<tr><td>1</td><td>1</td><td>0.80</td><td>sol (−log(ŷ))</td><td>−log(0.80) ≈ 0.223</td></tr>
+<tr><td>2</td><td>0</td><td>0.30</td><td>sağ (−log(1−ŷ))</td><td>−log(0.70) ≈ 0.357</td></tr>
+<tr><td>3</td><td>1</td><td>0.95</td><td>sol (−log(ŷ))</td><td>−log(0.95) ≈ 0.051</td></tr>
+</table>
+<p>Ortalama Log Loss = (0.223 + 0.357 + 0.051) / 3 = 0.631 / 3 ≈ <b>0.210</b></p>
+
+<div class="exercise" data-num="2">
+Aynı formatta, y=0, ŷ=0.10 olan bir gözlem için Loss<sub>i</sub>'yi hesapla. Hangi yarı devrede kalıyor?
+</div>
+<div class="answer">
+y=0 olduğu için sağ taraf devrede: Loss = −log(1−0.10) = −log(0.90) ≈ <b>0.105</b>. Model gerçek sınıfa (0) yüksek olasılık (0.90) verdiği için ceza küçük — beklendiği gibi.
+</div>
+
+<div class="pagebreak"></div>
+
+<h2><span class="num">4</span>Neden Log Loss + Sigmoid Tek Çukurlu Kalıyor?</h2>
+
+<p>Bu bölüm, 2. bölümdeki "neden MSE değil" sorusunun matematiksel temelini gösteriyor. İki fonksiyonu karşılaştıralım.</p>
+
+<h3>Log loss + sigmoid: log, üsteli "yiyor"</h3>
+<p>Sigmoid: ŷ = 1/(1+e<sup>−z</sup>). Bunu log loss'un içine koyunca:</p>
+<div class="formula">
+log(ŷ) = log( 1/(1+e<sup>−z</sup>) ) = −log(1+e<sup>−z</sup>)
+</div>
+<p><code>log</code> fonksiyonu, sigmoid'in içindeki <code>e<sup>−z</sup></code>'yi düzleştirir — üstel terim log ile birleşince yumuşak, pürüzsüz bir ifadeye dönüşür (bu ifadeye "softplus" denir, tek çukurludur). Bunu z = b+wx (b, w'ye göre doğrusal) ile birleştirdiğinde, ortaya çıkan toplam ifade b ve w'ye göre de <b>tek çukurlu (konveks)</b> kalır.</p>
+
+<h3>MSE + sigmoid: kare alınca eğrisellik katlanıyor</h3>
+<div class="formula">
+Hata = (ŷ − y)² = ( 1/(1+e<sup>−z</sup>) − y )²
+</div>
+<p>Burada log yok — sigmoid'in S-eğrisi olduğu gibi kareye alınıyor. Sigmoid zaten kendi içinde bükülen (dönüş noktası olan) bir eğri; bunu kareye alınca eğrisellik yok olmuyor, katlanıyor. Sonuçta ortaya çıkan yüzey tek çukur değil, birden fazla iniş-çıkışı olan tümsekli bir yüzey oluyor.</p>
+
+<div class="why">
+Kısacası: <b>log</b> ve <b>e<sup>−z</sup></b> doğrudan birbirini iptal ediyor (log(e<sup>x</sup>)=x mantığı), geriye düz, tek çukurlu bir ifade kalıyor. MSE'de ise hiçbir iptal olmuyor, sigmoid'in eğrisi kareyle birlikte katlanarak tümsekli hale geliyor. Bu yüzden lojistik regresyonda "yerel minimuma düşme riskine karşı ekstra kontrol" gerekmiyor — problem, doğru hata fonksiyonu (log loss) seçilerek baştan ortadan kaldırılıyor.
+</div>
+
+<h2><span class="num">5</span>Gradient Descent ile b, w'yi Bulmak</h2>
+
+<p>Doğrusal regresyondaki gradient descent notlarını hatırla: J(θ) fonksiyonunun ilgili parametreye göre kısmi türevini alıp, bu türevi öğrenme oranıyla çarparak parametreyi güncelliyorduk. Lojistik regresyonda da mantık birebir aynı — sadece J(θ) artık log loss.</p>
+
+<div class="formula">
+<span class="label">Genel Güncelleme Kuralı (Repeat)</span>
+θ<sub>j</sub> := θ<sub>j</sub> − α · ∂J(θ)/∂θ<sub>j</sub>
+</div>
+
+<div class="box">
+<b>Önemli farkındalık:</b> b ve w değerleri "gökten gelmiyor" — bir yöntemle bulunması gerekiyor. Bunu gradient descent (iteratif, adım adım) ile bulabileceğimiz gibi, istatistikte <b>maksimum olabilirlik (maximum likelihood)</b> yöntemiyle de bulabiliriz. İkisi de aynı hedefe (log loss'u minimize eden b, w) farklı yollarla ulaşır. Biz burada gradient descent'e odaklanıyoruz çünkü kodda bunu sıfırdan yazacaksın.
+</div>
+
+<h3>Akış — doğrusal regresyondan farkı sadece 1 satır</h3>
+<table>
+<tr><th>Adım</th><th>Doğrusal Regresyon</th><th>Lojistik Regresyon</th></tr>
+<tr><td>Tahmin</td><td>ŷ = b + w·x</td><td>ŷ = sigmoid(b + w·x)</td></tr>
+<tr><td>Maliyet fonksiyonu</td><td>MSE</td><td>Log Loss</td></tr>
+<tr><td>Kısmi türev alma</td><td>MSE'nin türevi</td><td>Log Loss'un türevi</td></tr>
+<tr><td>Güncelleme kuralı</td><td>θ := θ − α·eğim</td><td>θ := θ − α·eğim (birebir aynı)</td></tr>
+<tr><td>İterasyon (tekrar)</td><td>for döngüsü</td><td>for döngüsü (birebir aynı)</td></tr>
+</table>
+
+<div class="analogy">
+Hocanın vurguladığı nokta tam olarak bu: doğrusal regresyonda gradyanı çok detaylı hesapladık, "ağırlıklar değiştiğinde fonksiyonun değerini minimum yapacak yöne gitme" mantığını oturttuk. Lojistik regresyonda bu mekanizmanın kendisi <b>değişmiyor</b> — sadece hangi fonksiyonun (J(θ)) eğimini aldığımız değişiyor. Motoru değiştirmiyoruz, sadece pusulanın hangi haritaya baktığını değiştiriyoruz.
+</div>
+
+<h3>Kısmi türevin sonucu (ezbersiz, sonucu bil yeter)</h3>
+<p>Log loss'un z'ye göre türevi alınıp zincir kuralıyla b ve w'ye yayıldığında, şaşırtıcı derecede sade bir sonuç çıkar:</p>
+<div class="formula">
+∂J/∂b = (1/m) · Σ<sub>i=1</sub><sup>m</sup> (ŷ<sub>i</sub> − y<sub>i</sub>) &nbsp;&nbsp;&nbsp;&nbsp; ∂J/∂w = (1/m) · Σ<sub>i=1</sub><sup>m</sup> (ŷ<sub>i</sub> − y<sub>i</sub>) · x<sub>i</sub>
+</div>
+<div class="why">
+Bu formül doğrusal regresyondaki (h(x)−y) ve (h(x)−y)·x formülleriyle <b>görsel olarak birebir aynı</b> görünüyor — tek fark ŷ artık sigmoid'den geçmiş bir değer. Bu tesadüf değil: log loss özellikle bu sade türevi verecek şekilde tasarlanmıştır (log ve exp'in birbirini iptal etmesinin doğrudan sonucu). Pratik anlamı: kodda yazdığın <code>update_weights</code> fonksiyonunun iskeleti (b_deriv_sum, w_deriv_sum, learning_rate ile güncelleme) neredeyse hiç değişmeyecek; tek değişen, ŷ'yi hesaplarken artık <code>b+w*x</code>'i sigmoid'den geçirmen.
+</div>
+
+<div class="exercise" data-num="3">
+Elinde 2 gözlemlik veri var: (x=1, y=1, ŷ=0.7) ve (x=2, y=0, ŷ=0.4). ∂J/∂b ve ∂J/∂w'yi elle hesapla (m=2).
+</div>
+<div class="answer">
+(ŷ−y) değerleri: gözlem 1 → 0.7−1 = −0.3, gözlem 2 → 0.4−0 = 0.4.<br>
+∂J/∂b = (−0.3 + 0.4)/2 = 0.1/2 = <b>0.05</b><br>
+(ŷ−y)·x değerleri: gözlem 1 → −0.3·1 = −0.3, gözlem 2 → 0.4·2 = 0.8<br>
+∂J/∂w = (−0.3 + 0.8)/2 = 0.5/2 = <b>0.25</b><br>
+Bu iki sayı, öğrenme oranıyla çarpılıp b ve w'den çıkarılacak — tıpkı doğrusal regresyonda yaptığın gibi.
+</div>
+
+<h2><span class="num">6</span>Bu Matematiğin Koda Bağlanması</h2>
+
+<table>
+<tr><th>Matematikteki adım</th><th>Kodda karşılığı</th></tr>
+<tr><td>z = b + w·x hesaplama</td><td>daha önce yazdığın satırla birebir aynı</td></tr>
+<tr><td>ŷ = sigmoid(z)</td><td><b>yeni satır:</b> 1 / (1 + np.exp(-z))</td></tr>
+<tr><td>Log Loss hesaplama</td><td>cost_function içinde -y*log(ŷ) - (1-y)*log(1-ŷ) toplamının ortalaması</td></tr>
+<tr><td>∂J/∂b, ∂J/∂w</td><td>update_weights içindeki b_deriv_sum, w_deriv_sum — formül aynı, sadece ŷ artık sigmoid'den geçmiş</td></tr>
+<tr><td>θ := θ − α·eğim</td><td>b = b - learning_rate * eğim_b ; w = w - learning_rate * eğim_w (değişmedi)</td></tr>
+<tr><td>Tekrar (iterasyon)</td><td>for döngüsü (değişmedi)</td></tr>
+<tr><td>0.5 eşiğiyle sınıf kararı</td><td><b>yeni satır:</b> ŷ >= 0.5 ise sınıf 1, değilse sınıf 0</td></tr>
+</table>
+
+<div class="box">
+<b>Önemli hatırlatma:</b> <code>LogisticRegression().fit()</code> sklearn'de bu iteratif süreci farklı optimizasyon algoritmalarıyla (örn. lbfgs) çok hızlı şekilde çözer; ayrıca maksimum olabilirlik temelli çözümler de kullanılabilir. Senin sıfırdan yazacağın gradient descent, aynı log loss'u minimize eden b, w'ye adım adım, daha yavaş ama <b>görerek</b> ulaşacak — amaç hız değil, mekanizmayı kavramak.
+</div>
+
+<h2><span class="num">7</span>Kodlamaya Geçmeden Önce Kontrol Listesi</h2>
+<ul class="checklist">
+<li>Sigmoid fonksiyonunun neden gerekli olduğunu (z'yi 0-1 aralığına sıkıştırmak) açıklayabiliyorum.</li>
+<li>z = b+w·x ile ŷ = sigmoid(z) arasındaki farkı biliyorum: biri ham skor, diğeri olasılık.</li>
+<li>Log loss formülünde y=1 ve y=0 durumlarında hangi yarının "devrede kaldığını" elle gösterebiliyorum.</li>
+<li>−log fonksiyonunun neden "emin ama yanlış" tahminleri ağır cezalandırdığını sayısal örnekle açıklayabiliyorum.</li>
+<li>MSE+sigmoid'in neden tümsekli (non-konveks), log loss+sigmoid'in neden tek çukurlu (konveks) olduğunu, log/exp ilişkisi üzerinden anlatabiliyorum.</li>
+<li>Log loss'un b ve w'ye göre türevinin, doğrusal regresyondaki türevle neden bu kadar benzediğini biliyorum.</li>
+<li>Gradient descent'in genel akışının (eğim bul, öğrenme oranıyla çarp, çıkar, tekrarla) doğrusal regresyondan hiç değişmediğini, sadece hangi fonksiyonun türevinin alındığının değiştiğini anlıyorum.</li>
+<li>Elle en az 1 sigmoid ve 1 log loss hesabını, hatasız şekilde yaptım.</li>
+</ul>
+
+<p><b>Hepsini işaretleyebiliyorsan, kodlama kısmına geçmeye hazırsın.</b> Takıldığın alıştırma olursa çözümünü getir, birlikte kontrol edelim.</p>
+
+<div class="footer-note">Miuul Makine Öğrenmesi Modülü — Lojistik Regresyon Ön Çalışma Kağıdı</div>
+
+</body>
+</html>
